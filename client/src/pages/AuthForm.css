@@ -1,6 +1,5 @@
 .auth-page {
     min-height: 100vh;
-    background: #f6f5f7;
     display: flex;
     flex-direction: column;
     font-family: 'Poppins', sans-serif;
@@ -15,7 +14,8 @@
 }
 
 .auth-container {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
     border-radius: 20px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
     position: relative;
@@ -23,6 +23,14 @@
     width: 850px;
     max-width: 100%;
     min-height: 550px;
+    transition: background-color 0.3s ease;
+}
+
+html.dark .auth-container {
+    background-color: rgba(30, 41, 59, 0.85);
+    /* Dark slate */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5), 0 10px 10px rgba(0, 0, 0, 0.4);
 }
 
 .form-container {
@@ -178,7 +186,7 @@
 }
 
 form {
-    background-color: #FFFFFF;
+    background-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -223,6 +231,18 @@ form {
     box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
 }
 
+html.dark .social-container .social {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #fff;
+}
+
+html.dark .social-container .social:hover {
+    background-color: #0f172a;
+    border-color: #60a5fa;
+    color: #60a5fa;
+}
+
 .social-container .social i {
     font-size: 20px;
 }
@@ -238,6 +258,14 @@ h1 {
     margin: 0;
     font-size: 2rem;
     color: #111827;
+}
+
+html.dark h1 {
+    color: #f8fafc;
+}
+
+html.dark .auth-container span {
+    color: #94a3b8;
 }
 
 .auth-container p {
@@ -270,6 +298,17 @@ h1 {
     transition: all 0.3s ease;
     font-size: 14px;
     color: #1e293b;
+}
+
+html.dark .auth-container input {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #fff;
+}
+
+html.dark .auth-container input:focus {
+    border-color: #3b82f6;
+    background-color: #1e293b;
 }
 
 .auth-container input:focus {

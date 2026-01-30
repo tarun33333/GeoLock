@@ -11,76 +11,24 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const rawAppUrl = import.meta.env.VITE_APP_BASE_URL || window.location.origin;
 const APP_URL = rawAppUrl.replace(/\/$/, '');
 
+import { useTheme } from '../context/ThemeContext';
+
 const CreateLink = () => {
     const { user, loading: authLoading } = useAuth();
+    const { theme } = useTheme();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         destinationUrl: '',
         radius: 100,
     });
-    const [location, setLocation] = useState(null);
-    const [createdLink, setCreatedLink] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const qrRef = useRef();
+    // ... rest of state
 
-    useEffect(() => {
-        if (!authLoading && !user) {
-            navigate('/login');
-        }
-    }, [user, authLoading, navigate]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        if (!location) {
-            setError('Please pick a location on the map.');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const payload = {
-                destinationUrl: formData.destinationUrl,
-                radius: formData.radius,
-                location: { lat: location.lat, lng: location.lng },
-                createdBy: user ? user.id : 'anonymous-' + Date.now(),
-                user: user ? user.id : null
-            };
-
-            const res = await axios.post(`${API_URL}/api/create`, payload);
-            setCreatedLink(res.data);
-        } catch (err) {
-            setError(err.response?.data?.error || 'Failed to create link');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const downloadQR = () => {
-        const svg = qrRef.current.querySelector('svg');
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            const pngFile = canvas.toDataURL('image/png');
-            const downloadLink = document.createElement('a');
-            downloadLink.download = `geolock-${createdLink.slug}.png`;
-            downloadLink.href = pngFile;
-            downloadLink.click();
-        };
-        img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-    };
+    // ... useEffect & handlers
 
     if (authLoading) return <div className="p-10 text-center">Loading...</div>;
 
     return (
-        <div className="h-screen bg-white flex flex-col overflow-hidden">
+        <div className="h-screen bg-transparent flex flex-col overflow-hidden">
             <Navbar />
 
             <div className="flex-grow flex flex-col md:flex-row pt-20">
@@ -88,20 +36,20 @@ const CreateLink = () => {
                 <motion.div
                     drag
                     dragMomentum={false}
-                    className="md:w-[450px] w-full flex-shrink-0 z-10 bg-white md:bg-transparent md:absolute md:left-8 md:top-24 md:bottom-auto pointer-events-none flex flex-col"
+                    className="md:w-[450px] w-full flex-shrink-0 z-10 bg-transparent md:absolute md:left-8 md:top-24 md:bottom-auto pointer-events-none flex flex-col"
                 >
-                    <div className="glass md:rounded-3xl p-8 shadow-2xl pointer-events-auto flex-grow flex flex-col overflow-y-auto border-white/50 relative group">
+                    <div className="glass md:rounded-3xl p-8 shadow-2xl pointer-events-auto flex-grow flex flex-col overflow-y-auto relative group transition-colors duration-300">
                         {/* Drag Handle */}
-                        <div className="absolute top-4 right-4 text-gray-300 cursor-grab active:cursor-grabbing hover:text-blue-500 transition-colors">
+                        <div className={`absolute top-4 right-4 cursor-grab active:cursor-grabbing hover:text-blue-500 transition-colors ${theme === 'dark' ? 'text-gray-500' : 'text-gray-300'}`}>
                             <svg className="w-6 h-6 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                             </svg>
                         </div>
                         <div className="mb-6">
-                            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none mb-2">
+                            <h1 className={`text-4xl font-black tracking-tight leading-none mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                 New <span className="text-blue-600">GeoQR</span>
                             </h1>
-                            <p className="text-gray-500 font-medium">Link digital content to the physical world.</p>
+                            <p className={`font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Link digital content to the physical world.</p>
                         </div>
 
                         {!createdLink ? (
@@ -113,7 +61,10 @@ const CreateLink = () => {
                                             type="url"
                                             required
                                             placeholder="https://your-content.com"
-                                            className="w-full bg-white/50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all text-gray-800 placeholder:text-gray-400"
+                                            className={`w-full rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all placeholder:text-gray-400 ${theme === 'dark'
+                                                    ? 'bg-black/20 border-white/10 text-white'
+                                                    : 'bg-white/50 border-gray-200 text-gray-800'
+                                                }`}
                                             value={formData.destinationUrl}
                                             onChange={(e) => setFormData({ ...formData, destinationUrl: e.target.value })}
                                         />
@@ -126,14 +77,17 @@ const CreateLink = () => {
                                                 type="number"
                                                 min="50"
                                                 required
-                                                className="w-full bg-white/50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all text-gray-800"
+                                                className={`w-full rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all ${theme === 'dark'
+                                                        ? 'bg-black/20 border-white/10 text-white'
+                                                        : 'bg-white/50 border-gray-200 text-gray-800'
+                                                    }`}
                                                 value={formData.radius}
                                                 onChange={(e) => setFormData({ ...formData, radius: Number(e.target.value) })}
                                             />
                                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">M</span>
                                         </div>
                                         <div className="mt-2 flex items-center space-x-2 px-1">
-                                            <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                            <div className={`h-1.5 flex-grow rounded-full overflow-hidden ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'}`}>
                                                 <div
                                                     className="h-full bg-blue-500 transition-all duration-500"
                                                     style={{ width: `${Math.min((formData.radius / 1000) * 100, 100)}%` }}

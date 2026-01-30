@@ -30,26 +30,30 @@
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.3);
     }
+
+    html.dark .glass {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 }
 
 .custom-cursor-main {
-    width: 8px;
-    height: 8px;
-    background-color: black;
-    border: 1px solid white;
+    width: 14px;
+    height: 14px;
+    background: linear-gradient(135deg, #60a5fa, #a855f7);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
     transition: transform 0.1s;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 12px rgba(96, 165, 250, 0.8), 0 0 20px rgba(168, 85, 247, 0.4);
 }
 
 .custom-cursor-main.hover {
-    transform: translate(-50%, -50%) scale(0.5);
-    background-color: transparent;
-    border-color: transparent;
+    transform: translate(-50%, -50%) scale(1.5);
+    background: linear-gradient(135deg, #3b82f6, #9333ea);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.9), 0 0 35px rgba(147, 51, 234, 0.6);
 }
 
 .custom-cursor-main.active {
@@ -57,32 +61,31 @@
 }
 
 .custom-cursor-outline {
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    background-color: rgba(0, 0, 0, 0.02);
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 9998;
     transform: translate(-50%, -50%);
-    transition: width 0.3s ease-out, height 0.3s ease-out, background-color 0.2s, border-color 0.2s;
+    transition: width 0.3s cubic-bezier(0.19, 1, 0.22, 1), height 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+    backdrop-filter: blur(0px);
+    /* Remove blur for clarity */
 }
 
 .custom-cursor-outline.hover {
-    width: 48px;
-    height: 48px;
-    background-color: rgba(37, 99, 235, 0.05);
-    /* Very subtle blue tint */
-    border-color: rgba(37, 99, 235, 0.5);
-    /* Blue border on hover */
-    backdrop-filter: blur(1px);
+    width: 80px;
+    height: 80px;
+    border-color: rgba(147, 51, 234, 0.3);
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.1) 0%, rgba(168, 85, 247, 0.05) 70%);
 }
 
 .custom-cursor-outline.active {
-    width: 28px;
-    height: 28px;
-    border-color: rgba(0, 0, 0, 0.8);
+    width: 36px;
+    height: 36px;
+    border-color: rgba(96, 165, 250, 0.8);
 }
 
 @keyframes bounce {

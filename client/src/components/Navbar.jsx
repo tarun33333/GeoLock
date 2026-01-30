@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
+    const { theme } = useTheme();
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -18,7 +20,10 @@ const Navbar = () => {
 
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 px-4 md:px-8">
-            <div className="max-w-7xl mx-auto backdrop-blur-md bg-white/70 border border-white/40 shadow-lg rounded-2xl transition-all duration-300">
+            <div className={`max-w-7xl mx-auto backdrop-blur-md border shadow-lg rounded-2xl transition-all duration-300 ${theme === 'dark'
+                ? 'bg-gray-900/70 border-white/10 shadow-black/50'
+                : 'bg-white/70 border-white/40 shadow-xl'
+                }`}>
                 <div className="flex justify-between items-center h-16 px-6">
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-2 group">
@@ -36,7 +41,7 @@ const Navbar = () => {
                                 to={link.path}
                                 className={`text-sm font-medium transition-colors duration-200 ${isActive(link.path)
                                     ? 'text-blue-600 font-bold'
-                                    : 'text-gray-600 hover:text-blue-500'
+                                    : theme === 'dark' ? 'text-gray-300 hover:text-blue-400' : 'text-gray-600 hover:text-blue-500'
                                     }`}
                             >
                                 {link.name}
@@ -56,7 +61,7 @@ const Navbar = () => {
                                             <span className="text-xs font-bold text-blue-600">{user.name.charAt(0).toUpperCase()}</span>
                                         )}
                                     </div>
-                                    <span className="text-sm text-gray-700 font-medium group-hover:text-blue-600 transition">
+                                    <span className={`text-sm font-medium transition group-hover:text-blue-600 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                                         Hi, {user.name}
                                         <span className={`ml-2 text-xs px-2 py-0.5 rounded-full border ${user.plan === 'business' ? 'bg-purple-100 text-purple-700 border-purple-200' :
                                             user.plan === 'pro' ? 'bg-green-100 text-green-700 border-green-200' :
@@ -78,7 +83,7 @@ const Navbar = () => {
                             <div className="flex items-center space-x-3">
                                 <Link
                                     to="/login"
-                                    className="text-sm font-medium text-gray-600 hover:text-blue-600"
+                                    className={`text-sm font-medium hover:text-blue-600 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
                                 >
                                     Login
                                 </Link>
@@ -111,7 +116,8 @@ const Navbar = () => {
 
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden border-t border-gray-100 px-4 pt-2 pb-4 space-y-2 bg-white/50 backdrop-blur-xl rounded-b-2xl">
+                    <div className={`md:hidden border-t px-4 pt-2 pb-4 space-y-2 backdrop-blur-xl rounded-b-2xl ${theme === 'dark' ? 'border-white/10 bg-gray-900/50' : 'border-gray-100 bg-white/50'
+                        }`}>
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
@@ -119,7 +125,7 @@ const Navbar = () => {
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.path)
                                     ? 'text-blue-600 bg-blue-50'
-                                    : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                                    : theme === 'dark' ? 'text-gray-300 hover:text-blue-400 hover:bg-white/5' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                                     }`}
                             >
                                 {link.name}
@@ -128,7 +134,7 @@ const Navbar = () => {
                         <div className="border-t border-gray-100 my-2 pt-2">
                             {user ? (
                                 <div className="space-y-2">
-                                    <div className="px-3 py-2 text-sm text-gray-700">
+                                    <div className={`px-3 py-2 text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                                         Signed in as <span className="font-bold">{user.name}</span>
                                         <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">{(user.plan || 'free').toUpperCase()}</span>
                                     </div>
@@ -144,7 +150,7 @@ const Navbar = () => {
                                     <Link
                                         to="/login"
                                         onClick={() => setIsMobileMenuOpen(false)}
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                                        className={`block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-50 ${theme === 'dark' ? 'text-gray-300 hover:bg-white/5' : 'text-gray-700'}`}
                                     >
                                         Login
                                     </Link>

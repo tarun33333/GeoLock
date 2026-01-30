@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -8,7 +9,9 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const Profile = () => {
     const { user, refreshUser, loading: authLoading, setup2FA, enable2FA, disable2FA } = useAuth();
+    const { theme } = useTheme();
     const navigate = useNavigate();
+
     const [name, setName] = useState('');
     const [image, setImage] = useState('');
     const [preview, setPreview] = useState('');
@@ -113,13 +116,16 @@ const Profile = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-transparent flex flex-col">
             <Navbar />
             <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-24">
-                <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+                <div className={`max-w-md w-full space-y-8 p-8 rounded-2xl shadow-xl backdrop-blur-md border ${theme === 'dark'
+                    ? 'bg-gray-900/60 border-white/10 shadow-black/30'
+                    : 'bg-white border-transparent'
+                    }`}>
                     <div className="text-center">
-                        <h2 className="text-3xl font-extrabold text-gray-900">Your Profile</h2>
-                        <p className="mt-2 text-gray-600">Update your personal information</p>
+                        <h2 className={`text-3xl font-extrabold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Your Profile</h2>
+                        <p className={`mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Update your personal information</p>
                     </div>
 
                     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -144,21 +150,27 @@ const Profile = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Full Name</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3 border"
+                                    className={`w-full rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3 border ${theme === 'dark'
+                                        ? 'bg-black/20 border-white/10 text-white placeholder-gray-500'
+                                        : 'bg-white border-gray-300 text-gray-900'
+                                        }`}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email (Cannot be changed)</label>
+                                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>Email (Cannot be changed)</label>
                                 <input
                                     type="email"
                                     disabled
-                                    className="w-full border-gray-300 rounded-lg shadow-sm bg-gray-50 p-3 border text-gray-500"
+                                    className={`w-full rounded-lg shadow-sm p-3 border ${theme === 'dark'
+                                        ? 'bg-gray-800/50 border-white/5 text-gray-500'
+                                        : 'bg-gray-50 border-gray-300 text-gray-500'
+                                        }`}
                                     value={user?.email || ''}
                                 />
                             </div>
@@ -182,29 +194,34 @@ const Profile = () => {
 
                     <div className="space-y-6">
                         <div className="text-center">
-                            <h3 className="text-xl font-bold text-gray-900 flex items-center justify-center">
+                            <h3 className={`text-xl font-bold flex items-center justify-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                                 <span className="mr-2">🔐</span> Two-Factor Authentication
                             </h3>
-                            <p className="mt-2 text-sm text-gray-500">
+                            <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                                 Enhance your account security using Microsoft Authenticator
                             </p>
                         </div>
 
                         {user?.twoFactorEnabled ? (
-                            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex flex-col items-center">
+                            <div className={`border rounded-xl p-4 flex flex-col items-center ${theme === 'dark' ? 'bg-green-900/20 border-green-500/30' : 'bg-green-50 border-green-200'
+                                }`}>
                                 <div className="text-green-600 font-bold flex items-center mb-4">
                                     <span className="mr-2 text-xl">✅</span> 2FA is active
                                 </div>
                                 <button
                                     onClick={handleDisable2FA}
                                     disabled={setupLoading}
-                                    className="px-6 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition font-medium"
+                                    className={`px-6 py-2 border rounded-lg transition font-medium ${theme === 'dark'
+                                        ? 'border-red-500/50 text-red-400 hover:bg-red-500/10'
+                                        : 'border-red-300 text-red-600 hover:bg-red-50'
+                                        }`}
                                 >
                                     Disable 2FA
                                 </button>
                             </div>
                         ) : (
-                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 flex flex-col items-center">
+                            <div className={`border rounded-xl p-6 flex flex-col items-center ${theme === 'dark' ? 'bg-gray-800/50 border-white/10' : 'bg-gray-50 border-gray-200'
+                                }`}>
                                 {!show2FASetup ? (
                                     <>
                                         <p className="text-sm text-gray-600 mb-6 text-center">
