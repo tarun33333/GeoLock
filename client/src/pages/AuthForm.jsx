@@ -206,7 +206,8 @@ const AuthForm = () => {
                         {/* Sign Up Form */}
                         <div className="form-container sign-up-container">
                             <form onSubmit={handleSignupSubmit}>
-                                <h1>Signup</h1>
+                                <img src="/logo.svg" alt="GeoQR Logo" className="auth-logo" style={{ width: '60px', marginBottom: '10px' }} />
+                                <h1>Create Account</h1>
                                 <SocialButtons />
                                 <span>or use your email for registration</span>
                                 <div className="input-group">
@@ -246,7 +247,8 @@ const AuthForm = () => {
                         {/* Sign In Form */}
                         <div className="form-container sign-in-container">
                             <form onSubmit={handleLoginSubmit}>
-                                <h1>Login</h1>
+                                <img src="/logo.svg" alt="GeoQR Logo" className="auth-logo" style={{ width: '60px', marginBottom: '10px' }} />
+                                <h1>Welcome Back</h1>
                                 <SocialButtons />
                                 <span>or use your email account</span>
                                 <div className="input-group">

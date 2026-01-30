@@ -52,7 +52,7 @@ const Dashboard = () => {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto pt-24 pb-10 px-4 sm:px-6 lg:px-8">
-                <h2 className="text-2xl font-bold mb-6">Your Geo Links</h2>
+                <h2 className="text-2xl font-bold mb-6">Your GeoQR Dashboard</h2>
 
                 {links.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-lg shadow">

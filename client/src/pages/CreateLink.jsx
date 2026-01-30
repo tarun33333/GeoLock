@@ -79,110 +79,159 @@ const CreateLink = () => {
     if (authLoading) return <div className="p-10 text-center">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="h-screen bg-white flex flex-col overflow-hidden">
             <Navbar />
 
-            <div className="flex-grow container mx-auto px-4 pt-24 pb-8">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-
-                    {/* Left Side (Form) */}
-                    <div className="p-8 md:w-1/2 flex flex-col justify-center">
-                        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Create New GeoLink</h1>
-                        <p className="text-gray-500 mb-8">Lock digital content to a physical location.</p>
+            <div className="flex-grow flex flex-col md:flex-row pt-20">
+                {/* Left Side: Form Panel */}
+                <div className="md:w-[450px] w-full flex-shrink-0 z-10 bg-white md:bg-transparent md:absolute md:left-8 md:top-24 md:bottom-8 pointer-events-none flex flex-col">
+                    <div className="glass md:rounded-3xl p-8 shadow-2xl pointer-events-auto flex-grow flex flex-col overflow-y-auto border-white/50">
+                        <div className="mb-6">
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none mb-2">
+                                New <span className="text-blue-600">GeoQR</span>
+                            </h1>
+                            <p className="text-gray-500 font-medium">Link digital content to the physical world.</p>
+                        </div>
 
                         {!createdLink ? (
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Destination URL</label>
-                                    <input
-                                        type="url"
-                                        required
-                                        placeholder="https://your-content.com"
-                                        className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3 border"
-                                        value={formData.destinationUrl}
-                                        onChange={(e) => setFormData({ ...formData, destinationUrl: e.target.value })}
-                                    />
+                            <form onSubmit={handleSubmit} className="space-y-6 flex-grow flex flex-col justify-center">
+                                <div className="space-y-4">
+                                    <div className="group">
+                                        <label className="block text-xs font-bold text-blue-600 uppercase tracking-widest mb-1 ml-1">Target Destination</label>
+                                        <input
+                                            type="url"
+                                            required
+                                            placeholder="https://your-content.com"
+                                            className="w-full bg-white/50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all text-gray-800 placeholder:text-gray-400"
+                                            value={formData.destinationUrl}
+                                            onChange={(e) => setFormData({ ...formData, destinationUrl: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-blue-600 uppercase tracking-widest mb-1 ml-1">Unlock Radius (meters)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                min="50"
+                                                required
+                                                className="w-full bg-white/50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all text-gray-800"
+                                                value={formData.radius}
+                                                onChange={(e) => setFormData({ ...formData, radius: Number(e.target.value) })}
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">M</span>
+                                        </div>
+                                        <div className="mt-2 flex items-center space-x-2 px-1">
+                                            <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-blue-500 transition-all duration-500"
+                                                    style={{ width: `${Math.min((formData.radius / 1000) * 100, 100)}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-[10px] text-gray-400 font-bold uppercase whitespace-nowrap">
+                                                {formData.radius >= 1000 ? `${(formData.radius / 1000).toFixed(1)}KM` : `${formData.radius}M`}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Unlock Radius (meters)</label>
-                                    <input
-                                        type="number"
-                                        min="50"
-                                        required
-                                        className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-3 border"
-                                        value={formData.radius}
-                                        onChange={(e) => setFormData({ ...formData, radius: Number(e.target.value) })}
-                                    />
-                                    <p className="text-xs text-gray-400 mt-1">Minimum 50 meters.</p>
-                                </div>
-
-                                {/* Mobile Map Hint */}
-                                <div className="md:hidden block">
-                                    <p className="text-sm text-blue-600 mb-2">👇 Scroll down to pick location on map</p>
+                                <div className={`p-4 rounded-2xl transition-all duration-300 border ${location ? 'bg-green-50 border-green-100' : 'bg-blue-50 border-blue-100'}`}>
+                                    <div className="flex items-center space-x-3">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${location ? 'bg-green-500 text-white' : 'bg-blue-500 text-white animate-pulse'}`}>
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-grow">
+                                            <p className={`text-sm font-bold ${location ? 'text-green-700' : 'text-blue-700'}`}>
+                                                {location ? 'Location Locked' : 'Select Location'}
+                                            </p>
+                                            <p className="text-[11px] text-opacity-70 text-gray-600">
+                                                {location ? `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}` : 'Click on the map to pin a location'}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {error && (
-                                    <div className="bg-red-50 border-l-4 border-red-500 p-4">
-                                        <p className="text-red-700 text-sm">{error}</p>
+                                    <div className="bg-red-50 border-red-100 p-4 rounded-2xl border flex items-center space-x-2">
+                                        <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">!</div>
+                                        <p className="text-red-700 text-xs font-medium">{error}</p>
                                     </div>
                                 )}
 
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition"
+                                    className="w-full bg-blue-600 py-4 px-6 rounded-2xl text-white font-bold text-lg shadow-xl shadow-blue-600/20 hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                                 >
-                                    {loading ? 'Generating...' : 'Create Geo-Link'}
+                                    {loading ? 'Generating...' : 'Create GeoQR Link'}
                                 </button>
                             </form>
                         ) : (
-                            <div className="text-center space-y-6">
-                                <div className="bg-green-50 p-4 rounded-full inline-block">
-                                    <svg className="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                                <h2 className="text-2xl font-bold text-gray-800">It's Ready!</h2>
-                                <p className="text-gray-600">Scan this code at the location to unlock.</p>
-
-                                <div ref={qrRef} className="flex justify-center bg-white p-4 rounded-xl shadow-inner border border-gray-100">
-                                    <QRCodeSVG value={`${APP_URL}/l/${createdLink.slug}`} size={200} />
+                            <div className="text-center space-y-6 flex-grow flex flex-col justify-center">
+                                <div className="space-y-4">
+                                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-500/20">
+                                        <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <h2 className="text-3xl font-black text-gray-900">It's Live!</h2>
                                 </div>
 
-                                <div className="bg-gray-100 p-3 rounded-lg text-sm font-mono break-all text-gray-700">
-                                    {APP_URL}/l/{createdLink.slug}
+                                <div ref={qrRef} className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 mx-auto transform hover:rotate-2 transition-transform duration-300">
+                                    <QRCodeSVG value={`${APP_URL}/l/${createdLink.slug}`} size={180} />
                                 </div>
 
-                                <div className="flex flex-col space-y-3">
-                                    <button
-                                        onClick={downloadQR}
-                                        className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded transition"
-                                    >
-                                        Download QR
-                                    </button>
-                                    <Link to="/dashboard" className="w-full border border-blue-600 text-blue-600 font-bold py-2 px-4 rounded hover:bg-blue-50 transition text-center">
-                                        Go to Dashboard
-                                    </Link>
+                                <div className="space-y-4">
+                                    <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex flex-col items-center">
+                                        <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Shareable Link</span>
+                                        <p className="text-sm font-mono break-all text-blue-900 font-bold">{APP_URL}/l/{createdLink.slug}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={downloadQR}
+                                            className="bg-gray-900 text-white font-bold py-3 px-4 rounded-2xl hover:bg-black transition-all shadow-lg"
+                                        >
+                                            Download QR
+                                        </button>
+                                        <Link to="/dashboard" className="bg-white text-blue-600 font-bold py-3 px-4 rounded-2xl border border-blue-200 hover:bg-blue-50 transition-all text-center">
+                                            Dashboard
+                                        </Link>
+                                    </div>
                                     <button
                                         onClick={() => { setCreatedLink(null); setLocation(null); setFormData({ ...formData, destinationUrl: '' }); }}
-                                        className="text-gray-500 text-sm hover:underline"
+                                        className="text-gray-400 text-sm font-medium hover:text-blue-600 transition"
                                     >
                                         Create Another
                                     </button>
                                 </div>
                             </div>
                         )}
-                    </div>
 
-                    {/* Right Side (Map) */}
-                    <div className="md:w-1/2 bg-gray-100 relative h-96 md:h-auto">
-                        <div className="absolute bottom-4 left-4 z-10 bg-white/90 backdrop-blur px-3 py-1 rounded shadow text-xs font-semibold text-gray-600">
-                            {location ? `Selected: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 'Click map to select location'}
+                        <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <span>Powered by GeoQR</span>
+                            <div className="flex space-x-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>Network Active</span>
+                            </div>
                         </div>
-                        <MapSelector onLocationSelect={setLocation} />
                     </div>
+                </div>
 
+                {/* Right Side: Map Container */}
+                <div className="flex-grow relative z-0">
+                    <MapSelector onLocationSelect={setLocation} />
+
+                    {/* Floating Map Controls Hint (Desktop only) */}
+                    <div className="hidden md:block absolute bottom-8 right-8 z-20 space-y-2 pointer-events-none">
+                        <div className="glass px-4 py-2 rounded-full shadow-lg border border-white/50 flex items-center space-x-2">
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            <span className="text-xs font-bold text-gray-700">Interactive Map View</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

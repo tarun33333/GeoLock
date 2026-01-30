@@ -9,8 +9,9 @@ const Landing = () => {
         <div className="min-h-screen bg-white flex flex-col">
             <Navbar />
             <div className="pt-20 flex-grow flex flex-col">
-                <main className="flex-grow flex flex-col items-center justify-center text-center p-6">
+                <main className="flex-grow flex flex-col items-center justify-center text-center p-6 mt-10">
                     <div className="max-w-3xl">
+                        <img src="/logo.svg" alt="GeoQR Logo" className="w-24 h-24 mx-auto mb-8 animate-bounce-slow" />
                         <h2 className="text-5xl font-extrabold text-gray-900 leading-tight mb-6">
                             Make Links Physical. <br />
                             <span className="text-blue-600">Lock Content to a Location.</span>
@@ -21,7 +22,7 @@ const Landing = () => {
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link to="/create" className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:-translate-y-1">
-                                Create a Geo-Link (Free)
+                                Create a GeoQR Link (Free)
                             </Link>
                             <button className="px-8 py-4 bg-gray-100 text-gray-700 text-lg font-semibold rounded-lg hover:bg-gray-200 transition">
                                 How it works
@@ -49,7 +50,7 @@ const Landing = () => {
                 </main>
 
                 <footer className="py-6 text-center text-gray-400 text-sm">
-                    &copy; 2024 GeoLock. Built for builders.
+                    &copy; 2026 GeoQR. Built for builders.
                 </footer>
             </div>
         </div>

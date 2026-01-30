@@ -52,11 +52,9 @@ const LocationMarker = ({ setLocation, initialPos }) => {
             setLocation(e.latlng);
         },
         locationfound(e) {
-            if (!position && !initialPos) {
-                setPosition(e.latlng);
-                setLocation(e.latlng);
-                map.flyTo(e.latlng, map.getZoom());
-            }
+            setPosition(e.latlng);
+            setLocation(e.latlng);
+            map.flyTo(e.latlng, map.getZoom());
         },
         'geosearch/showlocation': (e) => {
             const latlng = { lat: e.location.y, lng: e.location.x };
@@ -82,31 +80,40 @@ const LocateControl = () => {
     const map = useMapEvents({});
 
     const handleLocate = (e) => {
-        e.stopPropagation(); // Prevent map click
+        e.preventDefault();
+        e.stopPropagation();
         map.locate({ setView: true, maxZoom: 16 });
     };
 
     return (
-        <div className="leaflet-top leaflet-left bg-white" style={{ marginTop: '80px', marginLeft: '10px', pointerEvents: 'auto', border: '2px solid rgba(0,0,0,0.2)', borderRadius: '4px' }}>
-            <button
-                onClick={handleLocate}
-                className="flex items-center justify-center w-8 h-8 bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
-                title="Locate Me"
-                style={{ cursor: 'pointer' }}
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-            </button>
+        <div
+            className="leaflet-top leaflet-left"
+            style={{ marginTop: '80px', marginLeft: '10px', pointerEvents: 'auto' }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+        >
+            <div className="bg-white" style={{ border: '2px solid rgba(0,0,0,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
+                <button
+                    type="button"
+                    onClick={handleLocate}
+                    className="flex items-center justify-center w-8 h-8 bg-white hover:bg-gray-100 text-gray-700 focus:outline-none"
+                    title="Locate Me"
+                    style={{ cursor: 'pointer', border: 'none' }}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </div>
         </div>
     );
 };
 
-const MapSelector = ({ onLocationSelect, initialPos }) => {
+const MapSelector = ({ onLocationSelect, initialPos, className = "" }) => {
     const provider = new OpenStreetMapProvider();
 
     return (
-        <div className="h-96 w-full rounded-lg overflow-hidden border border-gray-300 relative z-0">
+        <div className={`h-full w-full relative z-0 ${className}`}>
             {/* z-0 important for search bar layering if modal */}
             <MapContainer center={[20.5937, 78.9629]} zoom={5} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
                 <TileLayer

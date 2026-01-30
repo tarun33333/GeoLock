@@ -1,3 +1,91 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+
+    html,
+    body {
+        cursor: none;
+        overflow-x: hidden;
+    }
+
+    a,
+    button,
+    input,
+    select,
+    textarea {
+        cursor: none !important;
+    }
+}
+
+@layer utilities {
+    .animate-bounce-slow {
+        animation: bounce 3s infinite;
+    }
+
+    .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+}
+
+.custom-cursor-main {
+    width: 8px;
+    height: 8px;
+    background-color: #2563eb;
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+
+.custom-cursor-main.hover {
+    width: 0;
+    height: 0;
+}
+
+.custom-cursor-main.active {
+    transform: translate(-50%, -50%) scale(0.5);
+}
+
+.custom-cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(37, 99, 235, 0.3);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease-out, width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+}
+
+.custom-cursor-outline.hover {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 120, 235, 0.9);
+}
+
+.custom-cursor-outline.active {
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(-5%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}

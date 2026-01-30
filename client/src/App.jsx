@@ -10,9 +10,12 @@ import Pricing from './pages/Pricing';
 import PaymentSuccess from './pages/PaymentSuccess';
 import Profile from './pages/Profile';
 
+import CustomCursor from './components/CustomCursor';
+
 function App() {
     return (
         <AuthProvider>
+            <CustomCursor />
             <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                 <Routes>
                     <Route path="/" element={<Landing />} />

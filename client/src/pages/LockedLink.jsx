@@ -71,6 +71,7 @@ const LockedLink = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+      <img src="/logo.svg" alt="GeoQR Logo" className="w-16 h-16 mb-6 animate-bounce-slow" />
       <div className="max-w-md w-full bg-gray-800 p-8 rounded-2xl shadow-xl text-center">
         {status === 'granting' && (
           <>

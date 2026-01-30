@@ -22,11 +22,9 @@ const Navbar = () => {
                 <div className="flex justify-between items-center h-16 px-6">
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-2 group">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl group-hover:rotate-12 transition-transform">
-                            G
-                        </div>
+                        <img src="/logo.svg" alt="GeoQR Logo" className="w-10 h-10 group-hover:rotate-12 transition-transform" />
                         <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-blue-500">
-                            GeoLock
+                            GeoQR
                         </span>
                     </Link>
 

@@ -1,0 +1,18 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e4ed8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Shape (Location Pin) -->
+  <path d="M100 20C65 20 37 48 37 83C37 130 100 180 100 180C100 180 163 130 163 83C163 48 135 20 100 20Z" fill="url(#logoGradient)" />
+  
+  <!-- Inner QR Motif (Simplified squares) -->
+  <rect x="75" y="60" width="20" height="20" rx="3" fill="white" />
+  <rect x="105" y="60" width="20" height="20" rx="3" fill="white" />
+  <rect x="75" y="90" width="20" height="20" rx="3" fill="white" />
+  <rect x="105" y="90" width="10" height="10" rx="2" fill="white" />
+  <rect x="115" y="100" width="10" height="10" rx="2" fill="white" />
+</svg>
