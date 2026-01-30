@@ -35,45 +35,54 @@
 .custom-cursor-main {
     width: 8px;
     height: 8px;
-    background-color: #2563eb;
+    background-color: black;
+    border: 1px solid white;
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
-    transition: width 0.2s, height 0.2s, background-color 0.2s;
+    transition: transform 0.1s;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
 .custom-cursor-main.hover {
-    width: 0;
-    height: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    background-color: transparent;
+    border-color: transparent;
 }
 
 .custom-cursor-main.active {
-    transform: translate(-50%, -50%) scale(0.5);
+    transform: translate(-50%, -50%) scale(0.8);
 }
 
 .custom-cursor-outline {
-    width: 40px;
-    height: 40px;
-    border: 2px solid rgba(37, 99, 235, 0.3);
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.02);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 9998;
     transform: translate(-50%, -50%);
-    transition: transform 0.1s ease-out, width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+    transition: width 0.3s ease-out, height 0.3s ease-out, background-color 0.2s, border-color 0.2s;
 }
 
 .custom-cursor-outline.hover {
-    width: 60px;
-    height: 60px;
-    background-color: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 120, 235, 0.9);
+    width: 48px;
+    height: 48px;
+    background-color: rgba(37, 99, 235, 0.05);
+    /* Very subtle blue tint */
+    border-color: rgba(37, 99, 235, 0.5);
+    /* Blue border on hover */
+    backdrop-filter: blur(1px);
 }
 
 .custom-cursor-outline.active {
-    transform: translate(-50%, -50%) scale(0.8);
+    width: 28px;
+    height: 28px;
+    border-color: rgba(0, 0, 0, 0.8);
 }
 
 @keyframes bounce {

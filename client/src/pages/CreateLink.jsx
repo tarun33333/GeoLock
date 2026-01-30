@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import MapSelector from '../components/MapSelector';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -84,8 +85,18 @@ const CreateLink = () => {
 
             <div className="flex-grow flex flex-col md:flex-row pt-20">
                 {/* Left Side: Form Panel */}
-                <div className="md:w-[450px] w-full flex-shrink-0 z-10 bg-white md:bg-transparent md:absolute md:left-8 md:top-24 md:bottom-8 pointer-events-none flex flex-col">
-                    <div className="glass md:rounded-3xl p-8 shadow-2xl pointer-events-auto flex-grow flex flex-col overflow-y-auto border-white/50">
+                <motion.div
+                    drag
+                    dragMomentum={false}
+                    className="md:w-[450px] w-full flex-shrink-0 z-10 bg-white md:bg-transparent md:absolute md:left-8 md:top-24 md:bottom-auto pointer-events-none flex flex-col"
+                >
+                    <div className="glass md:rounded-3xl p-8 shadow-2xl pointer-events-auto flex-grow flex flex-col overflow-y-auto border-white/50 relative group">
+                        {/* Drag Handle */}
+                        <div className="absolute top-4 right-4 text-gray-300 cursor-grab active:cursor-grabbing hover:text-blue-500 transition-colors">
+                            <svg className="w-6 h-6 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                            </svg>
+                        </div>
                         <div className="mb-6">
                             <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none mb-2">
                                 New <span className="text-blue-600">GeoQR</span>
@@ -219,7 +230,7 @@ const CreateLink = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Right Side: Map Container */}
                 <div className="flex-grow relative z-0">
@@ -234,7 +245,7 @@ const CreateLink = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

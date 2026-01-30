@@ -56,6 +56,10 @@ const LocationMarker = ({ setLocation, initialPos }) => {
             setLocation(e.latlng);
             map.flyTo(e.latlng, map.getZoom());
         },
+        locationerror(e) {
+            console.error(e);
+            alert("Could not access location: " + e.message);
+        },
         'geosearch/showlocation': (e) => {
             const latlng = { lat: e.location.y, lng: e.location.x };
             setPosition(latlng);
@@ -82,13 +86,13 @@ const LocateControl = () => {
     const handleLocate = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        map.locate({ setView: true, maxZoom: 16 });
+        map.locate({ setView: true, maxZoom: 16, enableHighAccuracy: true });
     };
 
     return (
         <div
-            className="leaflet-top leaflet-left"
-            style={{ marginTop: '80px', marginLeft: '10px', pointerEvents: 'auto' }}
+            className="leaflet-bottom leaflet-right"
+            style={{ marginBottom: '90px', marginRight: '10px', pointerEvents: 'auto' }}
             onMouseDown={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
         >
