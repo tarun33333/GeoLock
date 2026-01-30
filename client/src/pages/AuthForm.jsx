@@ -7,13 +7,16 @@ import Navbar from '../components/Navbar';
 import './AuthForm.css';
 
 const AuthForm = () => {
-    const { login, register, socialLogin } = useAuth();
+    const { login, register, socialLogin, verify2FALogin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     const [isSignup, setIsSignup] = useState(location.pathname === '/signup');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [twoFactorEmail, setTwoFactorEmail] = useState('');
     const fbLoginTrigger = useRef(null);
 
     // Form states
@@ -34,10 +37,31 @@ const AuthForm = () => {
         setError('');
         setLoading(true);
         try {
-            await login(loginEmail, loginPassword);
+            const data = await login(loginEmail, loginPassword);
+            if (data.twoFactorRequired) {
+                setTwoFactorRequired(true);
+                setTwoFactorEmail(data.email);
+            } else {
+                navigate('/dashboard');
+            }
+        } catch (err) {
+            const detailMessage = err.response?.data?.details || err.message;
+            setError(`${err.response?.data?.error || 'Login failed'}: ${detailMessage}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handle2FAVerify = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+        try {
+            await verify2FALogin(twoFactorEmail, twoFactorCode);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.error || 'Login failed');
+            const detailMessage = err.response?.data?.details || err.message;
+            setError(`${err.response?.data?.error || '2FA Verification failed'}: ${detailMessage}`);
         } finally {
             setLoading(false);
         }
@@ -51,7 +75,8 @@ const AuthForm = () => {
             await register(signupName, signupEmail, signupPassword);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.error || 'Registration failed');
+            const detailMessage = err.response?.data?.details || err.message;
+            setError(`${err.response?.data?.error || 'Registration failed'}: ${detailMessage}`);
         } finally {
             setLoading(false);
         }
@@ -142,99 +167,134 @@ const AuthForm = () => {
                     }}
                 />
             </div>
+
             <div className="auth-container-wrapper">
-                <div className={`auth-container ${isSignup ? 'right-panel-active' : ''}`}>
-                    {/* Sign Up Form */}
-                    <div className="form-container sign-up-container">
-                        <form onSubmit={handleSignupSubmit}>
-                            <h1>Signup</h1>
-                            <SocialButtons />
-                            <span>or use your email for registration</span>
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    placeholder="Full Name"
-                                    value={signupName}
-                                    onChange={(e) => setSignupName(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="input-group">
-                                <input
-                                    type="email"
-                                    placeholder="Email"
-                                    value={signupEmail}
-                                    onChange={(e) => setSignupEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="input-group">
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={signupPassword}
-                                    onChange={(e) => setSignupPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            {isSignup && error && <p className="error-text">{error}</p>}
-                            <button type="submit" disabled={loading}>
-                                {loading ? 'Creating...' : 'Signup'}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Sign In Form */}
-                    <div className="form-container sign-in-container">
-                        <form onSubmit={handleLoginSubmit}>
-                            <h1>Login</h1>
-                            <SocialButtons />
-                            <span>or use your email account</span>
-                            <div className="input-group">
-                                <input
-                                    type="email"
-                                    placeholder="Email"
-                                    value={loginEmail}
-                                    onChange={(e) => setLoginEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="input-group">
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    value={loginPassword}
-                                    onChange={(e) => setLoginPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            {!isSignup && error && <p className="error-text">{error}</p>}
-                            <button type="submit" disabled={loading}>
-                                {loading ? 'Logging In...' : 'Login'}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Overlay */}
-                    <div className="overlay-container">
-                        <div className="overlay">
-                            <div className="overlay-panel overlay-left">
-                                <h1>Hello, Friend!</h1>
-                                <p>Enter your personal details and start your journey with us</p>
-                                <button className="ghost auth-btn" id="signIn" onClick={() => navigate('/login')}>
-                                    Login
+                {twoFactorRequired ? (
+                    <div className="auth-container two-factor-container">
+                        <div className="form-container sign-in-container" style={{ width: '100%', opacity: 1, zIndex: 5, left: 0 }}>
+                            <form onSubmit={handle2FAVerify}>
+                                <h1>Two-Factor Auth</h1>
+                                <p style={{ margin: '15px 0' }}>Enter the 6-digit code from your authenticator app.</p>
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        placeholder="000000"
+                                        value={twoFactorCode}
+                                        onChange={(e) => setTwoFactorCode(e.target.value)}
+                                        maxLength="6"
+                                        required
+                                        style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '5px' }}
+                                    />
+                                </div>
+                                {error && <p className="error-text">{error}</p>}
+                                <button type="submit" disabled={loading}>
+                                    {loading ? 'Verifying...' : 'Verify & Login'}
                                 </button>
-                            </div>
-                            <div className="overlay-panel overlay-right">
-                                <h1>Welcome Back!</h1>
-                                <p>To keep connected with us please login with your personal info</p>
-                                <button className="ghost auth-btn" id="signUp" onClick={() => navigate('/signup')}>
-                                    Signup
+                                <button
+                                    type="button"
+                                    className="ghost auth-btn"
+                                    style={{ color: '#333', marginTop: '10px' }}
+                                    onClick={() => setTwoFactorRequired(false)}
+                                >
+                                    Back to Login
                                 </button>
+                            </form>
+                        </div>
+                    </div>
+                ) : (
+                    <div className={`auth-container ${isSignup ? 'right-panel-active' : ''}`}>
+                        {/* Sign Up Form */}
+                        <div className="form-container sign-up-container">
+                            <form onSubmit={handleSignupSubmit}>
+                                <h1>Signup</h1>
+                                <SocialButtons />
+                                <span>or use your email for registration</span>
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        placeholder="Full Name"
+                                        value={signupName}
+                                        onChange={(e) => setSignupName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <input
+                                        type="email"
+                                        placeholder="Email"
+                                        value={signupEmail}
+                                        onChange={(e) => setSignupEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <input
+                                        type="password"
+                                        placeholder="Password"
+                                        value={signupPassword}
+                                        onChange={(e) => setSignupPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                {isSignup && error && <p className="error-text">{error}</p>}
+                                <button type="submit" disabled={loading}>
+                                    {loading ? 'Creating...' : 'Signup'}
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Sign In Form */}
+                        <div className="form-container sign-in-container">
+                            <form onSubmit={handleLoginSubmit}>
+                                <h1>Login</h1>
+                                <SocialButtons />
+                                <span>or use your email account</span>
+                                <div className="input-group">
+                                    <input
+                                        type="email"
+                                        placeholder="Email"
+                                        value={loginEmail}
+                                        onChange={(e) => setLoginEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <input
+                                        type="password"
+                                        placeholder="Password"
+                                        value={loginPassword}
+                                        onChange={(e) => setLoginPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                {!isSignup && error && <p className="error-text">{error}</p>}
+                                <button type="submit" disabled={loading}>
+                                    {loading ? 'Logging In...' : 'Login'}
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Overlay */}
+                        <div className="overlay-container">
+                            <div className="overlay">
+                                <div className="overlay-panel overlay-left">
+                                    <h1>Hello, Friend!</h1>
+                                    <p>Enter your personal details and start your journey with us</p>
+                                    <button className="ghost auth-btn" id="signIn" onClick={() => navigate('/login')}>
+                                        Login
+                                    </button>
+                                </div>
+                                <div className="overlay-panel overlay-right">
+                                    <h1>Welcome Back!</h1>
+                                    <p>To keep connected with us please login with your personal info</p>
+                                    <button className="ghost auth-btn" id="signUp" onClick={() => navigate('/signup')}>
+                                        Signup
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

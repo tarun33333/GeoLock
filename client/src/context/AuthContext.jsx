@@ -31,9 +31,34 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+        if (res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+            setUser(res.data.user);
+        }
+        return res.data;
+    };
+
+    const verify2FALogin = async (email, token) => {
+        const res = await axios.post(`${API_URL}/api/auth/2fa/verify-login`, { email, token });
         localStorage.setItem('token', res.data.token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
         setUser(res.data.user);
+        return res.data;
+    };
+
+    const setup2FA = async () => {
+        const res = await axios.get(`${API_URL}/api/auth/2fa/setup`);
+        return res.data;
+    };
+
+    const enable2FA = async (token) => {
+        const res = await axios.post(`${API_URL}/api/auth/2fa/enable`, { token });
+        return res.data;
+    };
+
+    const disable2FA = async (token) => {
+        const res = await axios.post(`${API_URL}/api/auth/2fa/disable`, { token });
         return res.data;
     };
 
@@ -65,7 +90,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, socialLogin, loading, refreshUser: checkUserLoggedIn }}>
+        <AuthContext.Provider value={{
+            user, login, register, logout, socialLogin, loading,
+            refreshUser: checkUserLoggedIn,
+            verify2FALogin, setup2FA, enable2FA, disable2FA
+        }}>
             {children}
         </AuthContext.Provider>
     );

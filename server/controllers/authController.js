@@ -2,8 +2,134 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// @desc    Generate 2FA secret and QR code
+// @route   GET /api/auth/2fa/setup
+// @access  Private
+exports.generate2FASetup = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const secret = authenticator.generateSecret();
+        const otpauth = authenticator.keyuri(user.email, 'GeoQR', secret);
+
+        console.log('2FA Setup initiated for:', user.email);
+
+        // Store secret temporarily but don't enable yet
+        user.twoFactorSecret = secret;
+        await user.save();
+
+        const qrCodeDataUri = await qrcode.toDataURL(otpauth);
+
+        res.status(200).json({
+            success: true,
+            qrCode: qrCodeDataUri,
+            secret: secret
+        });
+    } catch (err) {
+        console.error('2FA Setup Error Detail:', {
+            message: err.message,
+            stack: err.stack,
+            user: req.user?.id
+        });
+        res.status(500).json({ error: 'Server Error', details: err.message });
+    }
+};
+
+// @desc    Verify and enable 2FA
+// @route   POST /api/auth/2fa/enable
+// @access  Private
+exports.verifyAndEnable2FA = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const user = await User.findById(req.user.id).select('+twoFactorSecret');
+
+        if (!user.twoFactorSecret) {
+            return res.status(400).json({ error: '2FA setup not initiated' });
+        }
+
+        const isValid = authenticator.check(token, user.twoFactorSecret);
+
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid 2FA token' });
+        }
+
+        user.twoFactorEnabled = true;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: '2FA enabled successfully'
+        });
+    } catch (err) {
+        console.error('2FA Enable Error Detail:', {
+            message: err.message,
+            stack: err.stack,
+            user: req.user?.id
+        });
+        res.status(500).json({ error: 'Server Error', details: err.message });
+    }
+};
+
+// @desc    Disable 2FA
+// @route   POST /api/auth/2fa/disable
+// @access  Private
+exports.disable2FA = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const user = await User.findById(req.user.id).select('+twoFactorSecret');
+
+        const isValid = authenticator.check(token, user.twoFactorSecret);
+
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid 2FA token' });
+        }
+
+        user.twoFactorEnabled = false;
+        user.twoFactorSecret = undefined;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: '2FA disabled successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server Error' });
+    }
+};
+
+// @desc    Verify 2FA login
+// @route   POST /api/auth/2fa/verify-login
+// @access  Public
+exports.verify2FALogin = async (req, res) => {
+    try {
+        const { email, token } = req.body;
+        const user = await User.findOne({ email }).select('+twoFactorSecret');
+
+        if (!user || !user.twoFactorEnabled) {
+            return res.status(400).json({ error: '2FA not enabled for this user' });
+        }
+
+        const isValid = authenticator.check(token, user.twoFactorSecret);
+
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid 2FA token' });
+        }
+
+        sendTokenResponse(user, 200, res);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server Error' });
+    }
+};
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -11,6 +137,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+        console.log('Registration attempt:', { name, email });
 
         // Create user
         const user = await User.create({
@@ -24,8 +151,12 @@ exports.register = async (req, res) => {
         if (err.code === 11000) {
             return res.status(400).json({ error: 'Email already exists' });
         }
-        console.error(err);
-        res.status(500).json({ error: 'Server Error' });
+        console.error('Registration Error Detail:', {
+            message: err.message,
+            stack: err.stack,
+            errors: err.errors
+        });
+        res.status(500).json({ error: 'Server Error', details: err.message });
     }
 };
 
@@ -53,6 +184,16 @@ exports.login = async (req, res) => {
 
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        // Check if 2FA is enabled
+        const userWith2FA = await User.findById(user._id).select('+twoFactorEnabled');
+        if (userWith2FA.twoFactorEnabled) {
+            return res.status(200).json({
+                success: true,
+                twoFactorRequired: true,
+                email: user.email
+            });
         }
 
         sendTokenResponse(user, 200, res);
