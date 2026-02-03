@@ -21,9 +21,60 @@ const CreateLink = () => {
         destinationUrl: '',
         radius: 100,
     });
-    // ... rest of state
+    const [location, setLocation] = useState(null);
+    const [createdLink, setCreatedLink] = useState(null);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const qrRef = useRef();
 
-    // ... useEffect & handlers
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+
+        if (!location) {
+            setError('Please select a location.');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${API_URL}/api/links/create`, {
+                destinationUrl: formData.destinationUrl,
+                radius: formData.radius,
+                location: { lat: location.lat, lng: location.lng },
+                userId: user?.id
+            });
+            setCreatedLink(res.data);
+            setSuccess('Link created successfully!');
+            setLoading(false);
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.error || 'Failed to create link.');
+            setLoading(false);
+        }
+    };
+
+    const downloadQR = () => {
+        const svg = qrRef.current.querySelector('svg');
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const pngFile = canvas.toDataURL('image/png');
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `GeoQR-${createdLink.slug}.png`;
+            downloadLink.href = pngFile;
+            downloadLink.click();
+        };
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    };
 
     if (authLoading) return <div className="p-10 text-center">Loading...</div>;
 
@@ -62,8 +113,8 @@ const CreateLink = () => {
                                             required
                                             placeholder="https://your-content.com"
                                             className={`w-full rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all placeholder:text-gray-400 ${theme === 'dark'
-                                                    ? 'bg-black/20 border-white/10 text-white'
-                                                    : 'bg-white/50 border-gray-200 text-gray-800'
+                                                ? 'bg-black/20 border-white/10 text-white'
+                                                : 'bg-white/50 border-gray-200 text-gray-800'
                                                 }`}
                                             value={formData.destinationUrl}
                                             onChange={(e) => setFormData({ ...formData, destinationUrl: e.target.value })}
@@ -78,8 +129,8 @@ const CreateLink = () => {
                                                 min="50"
                                                 required
                                                 className={`w-full rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent p-4 border transition-all ${theme === 'dark'
-                                                        ? 'bg-black/20 border-white/10 text-white'
-                                                        : 'bg-white/50 border-gray-200 text-gray-800'
+                                                    ? 'bg-black/20 border-white/10 text-white'
+                                                    : 'bg-white/50 border-gray-200 text-gray-800'
                                                     }`}
                                                 value={formData.radius}
                                                 onChange={(e) => setFormData({ ...formData, radius: Number(e.target.value) })}
